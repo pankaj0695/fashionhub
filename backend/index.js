@@ -87,8 +87,7 @@ app.delete('/removeproduct/:id', async (req, res) => {
 });
 
 app.get('/products', async (req, res) => {
-  let products = await Product.find();
-  console.log('Fetched all Products');
+  const products = await Product.find();
   res.send(products);
 });
 
@@ -122,7 +121,7 @@ app.post('/signup', async (req, res) => {
     });
   }
   let cartData = {};
-  for (let i = 0; i < 300; i++) {
+  for (let i = 1; i <= 50; i++) {
     cartData[i] = 0;
   }
   const user = new User({
@@ -185,7 +184,7 @@ app.get('/popular', async (req, res) => {
 });
 
 const fetchUser = async (req, res, next) => {
-  const token = req.header('auto-token');
+  const token = req.header('auth-token');
   if (!token) {
     res.status(401).send({ errors: 'Please authenticate using valid login' });
   } else {
@@ -207,6 +206,23 @@ app.post('/addtocart', fetchUser, async (req, res) => {
     { cartData: userData.cartData }
   );
   res.send('Added');
+});
+
+app.post('/removefromcart', fetchUser, async (req, res) => {
+  let userData = await User.findOne({ _id: req.user.id });
+  if (userData.cartData[req.body.itemId] > 0) {
+    userData.cartData[req.body.itemId] -= 1;
+    await User.findOneAndUpdate(
+      { _id: req.user.id },
+      { cartData: userData.cartData }
+    );
+    res.send('Removed');
+  }
+});
+
+app.post('/cart', fetchUser, async (req, res) => {
+  const userData = await User.findOne({ _id: req.user.id });
+  res.json(userData.cartData);
 });
 
 app.listen(port, () => {
