@@ -1,11 +1,80 @@
 import { useContext } from 'react';
 
 import { ShopContext } from '../Context/ShopContext';
+import logo from '../assets/fashionhub.svg';
 import { TbTrash } from 'react-icons/tb';
 
 function Cart() {
-  const { all_products, cartItems, removeFromCart, getTotalCartAmount } =
-    useContext(ShopContext);
+  const {
+    all_products,
+    cartItems,
+    removeFromCart,
+    getTotalCartAmount,
+    clearCart,
+  } = useContext(ShopContext);
+
+  const initPayment = data => {
+    const itemsName = all_products
+      .filter(item => cartItems[item.id] > 0)
+      .reduce((str, item) => str + item.name + ', ', '');
+    const options = {
+      key: 'rzp_test_iWhMDUNVzE8e8a',
+      amount: data.amount,
+      currency: data.currency,
+      name: itemsName,
+      description: 'Test Transaction',
+      image: logo,
+      order_id: data.id,
+      handler: async response => {
+        try {
+          const verifyUrl = 'http://localhost:4000/verify-payment';
+          const res = await fetch(verifyUrl, {
+            method: 'POST',
+            body: JSON.stringify(response),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const { data } = await res.json();
+          console.log(data);
+          clearCart();
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      theme: {
+        color: '#3399cc',
+      },
+    };
+    const rzp1 = new window.Razorpay(options);
+    rzp1.open();
+  };
+
+  const paymentHandler = async () => {
+    try {
+      const orderUrl = 'http://localhost:4000/order';
+      const token = localStorage.getItem('auth-token');
+      // const { data } = await axios.post(orderUrl, {
+      //   amount: getTotalCartAmount(),
+      // });
+      if (token) {
+        const res = await fetch(orderUrl, {
+          method: 'POST',
+          body: JSON.stringify({ amount: getTotalCartAmount() }),
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'auth-token': `${token}`,
+          },
+        });
+        const { data } = await res.json();
+        console.log(data);
+        initPayment(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <section className='max_padd_container pt-28 pb-16 max-xs:px-3'>
       <table className='w-full mx-auto'>
@@ -56,8 +125,8 @@ function Cart() {
           })}
         </tbody>
       </table>
-      <div className='flex flex-col gap-20 mt-16 p-8 md:flex-row rounded-md bg-white w-full max-w-[666px] max-xs:px-2 max-xs:py-4'>
-        <div className='flex flex-col gap-10'>
+      <div className='flex flex-col gap-20 mt-16 p-8 md:flex-row rounded-md bg-white w-full max-w-[666px] max-xs:px-6 max-xs:py-6'>
+        <div className='flex flex-col gap-10 w-72 max-xs:w-52'>
           <h4 className='bold-20'>Summary</h4>
           <div>
             <div className='flexBetween py-4'>
@@ -77,8 +146,10 @@ function Cart() {
               <h4 className='bold-18'>&#8377;{getTotalCartAmount()}</h4>
             </div>
           </div>
-          <button className='btn_dark_rounded w-44'>Checkout</button>
-          <div className='flex flex-col gap-10'>
+          <button onClick={paymentHandler} className='btn_dark_rounded w-44'>
+            Checkout
+          </button>
+          {/* <div className='flex flex-col gap-10'>
             <h4 className='bold-20 capitalize max-xs:bold-16'>
               Your coupon code enter here:
             </h4>
@@ -90,7 +161,7 @@ function Cart() {
               />
               <button className='btn_dark_rounded'>Submit</button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

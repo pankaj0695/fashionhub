@@ -15,6 +15,7 @@ export const ShopContext = createContext({
   removeFromCart: () => {},
   getTotalCartItems: () => Number,
   getTotalCartAmount: () => Number,
+  clearCart: () => {},
 });
 
 const ShopContextProvider = props => {
@@ -95,6 +96,22 @@ const ShopContextProvider = props => {
     return totalItem;
   };
 
+  const clearCart = () => {
+    setCartItems(getDefaultCart());
+    const token = localStorage.getItem('auth-token');
+    if (token) {
+      fetch('http://localhost:4000/clearcart', {
+        method: 'POST',
+        body: JSON.stringify(getDefaultCart()),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'auth-token': `${token}`,
+        },
+      });
+    }
+  };
+
   const contextValue = {
     all_products,
     cartItems,
@@ -102,6 +119,7 @@ const ShopContextProvider = props => {
     removeFromCart,
     getTotalCartItems,
     getTotalCartAmount,
+    clearCart,
   };
 
   return (
