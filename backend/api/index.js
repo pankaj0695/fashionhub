@@ -2,8 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Razorpay = require('razorpay');
 const jwt = require('jsonwebtoken');
-const multer = require('multer');
-const path = require('path');
+// const multer = require('multer');
+// const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const crypto = require('crypto');
@@ -27,19 +27,19 @@ app.get('/', (req, res) => {
   res.send('Express App is running');
 });
 
-const storage = multer.diskStorage({
-  destination: './upload/images',
-  filename: (req, file, cb) => {
-    return cb(
-      null,
-      `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
-    );
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: './upload/images',
+//   filename: (req, file, cb) => {
+//     return cb(
+//       null,
+//       `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
+//     );
+//   },
+// });
 
-const upload = multer({ storage: storage });
+// const upload = multer({ storage: storage });
 
-app.use('/images', express.static('upload/images'));
+app.use('/images', express.static(path.join(__dirname, '../upload/images')));
 // app.post('/upload', upload.single('product'), (req, res) => {
 //   res.json({
 //     success: 1,
