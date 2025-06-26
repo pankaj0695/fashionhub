@@ -2,8 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Razorpay = require('razorpay');
 const jwt = require('jsonwebtoken');
-const multer = require('multer');
-const path = require('path');
+// const multer = require('multer');
+// const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const crypto = require('crypto');
@@ -15,34 +15,37 @@ const app = express();
 const port = 4000;
 
 app.use(express.json());
-app.use(cors());
-
-mongoose.connect(process.env.MONGO_URI);
+app.use(
+  cors({
+    origin: ['http://localhost:5173'],
+    credentials: false,
+  })
+);
 
 console.log(process.env.MONGO_URI);
 app.get('/', (req, res) => {
   res.send('Express App is running');
 });
 
-const storage = multer.diskStorage({
-  destination: './upload/images',
-  filename: (req, file, cb) => {
-    return cb(
-      null,
-      `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
-    );
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: './upload/images',
+//   filename: (req, file, cb) => {
+//     return cb(
+//       null,
+//       `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
+//     );
+//   },
+// });
 
-const upload = multer({ storage: storage });
+// const upload = multer({ storage: storage });
 
-app.use('/images', express.static('upload/images'));
-app.post('/upload', upload.single('product'), (req, res) => {
-  res.json({
-    success: 1,
-    image_url: `http://localhost:${port}/images/${req.file.filename}`,
-  });
-});
+// app.use('/images', express.static('upload/images'));
+// app.post('/upload', upload.single('product'), (req, res) => {
+//   res.json({
+//     success: 1,
+//     image_url: `http://localhost:${port}/images/${req.file.filename}`,
+//   });
+// });
 
 const Product = mongoose.model('Product', {
   id: { type: Number, required: true },
@@ -55,38 +58,38 @@ const Product = mongoose.model('Product', {
   available: { type: Boolean, default: true },
 });
 
-app.post('/addproduct', async (req, res) => {
-  const { name, image, category, new_price, old_price } = req.body;
-  let products = await Product.find();
-  let id;
-  if (products.length > 0) {
-    let lastProduct = products.slice(-1)[0];
-    id = lastProduct.id + 1;
-  } else {
-    id = 1;
-  }
-  const product = new Product({
-    id,
-    name,
-    image,
-    category,
-    new_price: +new_price,
-    old_price: +old_price,
-  });
-  console.log(product);
-  await product.save();
-  console.log('Saved');
-  res.json({ success: true, name });
-});
+// app.post('/addproduct', async (req, res) => {
+//   const { name, image, category, new_price, old_price } = req.body;
+//   let products = await Product.find();
+//   let id;
+//   if (products.length > 0) {
+//     let lastProduct = products.slice(-1)[0];
+//     id = lastProduct.id + 1;
+//   } else {
+//     id = 1;
+//   }
+//   const product = new Product({
+//     id,
+//     name,
+//     image,
+//     category,
+//     new_price: +new_price,
+//     old_price: +old_price,
+//   });
+//   console.log(product);
+//   await product.save();
+//   console.log('Saved');
+//   res.json({ success: true, name });
+// });
 
-app.delete('/removeproduct/:id', async (req, res) => {
-  let product = await Product.findOneAndDelete({ id: +req.params.id });
-  console.log('Product Removed');
-  res.json({
-    success: true,
-    product,
-  });
-});
+// app.delete('/removeproduct/:id', async (req, res) => {
+//   let product = await Product.findOneAndDelete({ id: +req.params.id });
+//   console.log('Product Removed');
+//   res.json({
+//     success: true,
+//     product,
+//   });
+// });
 
 app.get('/products', async (req, res) => {
   const products = await Product.find();
@@ -284,6 +287,16 @@ app.post('/verify-payment', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
-});
+// Connect to DB only once (cache workaround for Vercel serverless)
+let isConnected = false;
+async function connectDB() {
+  if (!isConnected) {
+    await mongoose.connect(process.env.MONGO_URI);
+    isConnected = true;
+  }
+}
+
+module.exports = async (req, res) => {
+  await connectDB(); // must await DB connect before anything else
+  return app(req, res); // Express handles the route
+};
