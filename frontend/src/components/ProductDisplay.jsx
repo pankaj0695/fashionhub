@@ -2,6 +2,7 @@ import { useContext } from 'react';
 
 import { ShopContext } from '../Context/ShopContext';
 import { MdStar } from 'react-icons/md';
+import { API_BASE } from '../helpers/helper';
 
 function ProductDisplay({ product }) {
   const { addToCart } = useContext(ShopContext);
@@ -12,28 +13,31 @@ function ProductDisplay({ product }) {
         <div className='flex gap-x-2 xl:flex-1'>
           <div className='flex flex-col gap-[7px] flex-wrap'>
             <img
-              src={product.image}
+              src={`${API_BASE}${product.image.split('4000')[1]}`}
               alt='productImg'
               className='max-h-[99px]'
             />
             <img
-              src={product.image}
+              src={`${API_BASE}${product.image.split('4000')[1]}`}
               alt='productImg'
               className='max-h-[99px]'
             />
             <img
-              src={product.image}
+              src={`${API_BASE}${product.image.split('4000')[1]}`}
               alt='productImg'
               className='max-h-[99px]'
             />
             <img
-              src={product.image}
+              src={`${API_BASE}${product.image.split('4000')[1]}`}
               alt='productImg'
               className='max-h-[99px]'
             />
           </div>
           <div>
-            <img src={product.image} alt={`${product.name} image`} />
+            <img
+              src={`${API_BASE}${product.image.split('4000')[1]}`}
+              alt={`${product.name} image`}
+            />
           </div>
         </div>
         <div className='flex-col flex xl:flex-[1.7]'>

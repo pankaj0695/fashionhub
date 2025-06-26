@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import logo from '../assets/fashionhub.svg';
 import { TbTrash } from 'react-icons/tb';
+import { API_BASE } from '../helpers/helper';
 
 function Cart() {
   const {
@@ -27,7 +28,7 @@ function Cart() {
       order_id: data.id,
       handler: async response => {
         try {
-          const verifyUrl = 'http://localhost:4000/verify-payment';
+          const verifyUrl = `${API_BASE}/verify-payment`;
           const res = await fetch(verifyUrl, {
             method: 'POST',
             body: JSON.stringify(response),
@@ -52,7 +53,7 @@ function Cart() {
 
   const paymentHandler = async () => {
     try {
-      const orderUrl = 'http://localhost:4000/order';
+      const orderUrl = `${API_BASE}/order`;
       const token = localStorage.getItem('auth-token');
       // const { data } = await axios.post(orderUrl, {
       //   amount: getTotalCartAmount(),
@@ -98,7 +99,7 @@ function Cart() {
                 >
                   <td className='flexCenter'>
                     <img
-                      src={item.image}
+                      src={`${API_BASE}${item.image.split('4000')[1]}`}
                       alt='product image'
                       height={43}
                       width={43}

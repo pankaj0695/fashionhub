@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import { API_BASE } from '../helpers/helper';
 import { FaSearch } from 'react-icons/fa';
 
 function Item({ item }) {
@@ -15,7 +16,7 @@ function Item({ item }) {
         </Link>
         <img
           onClick={window.scrollTo(0, 0)}
-          src={image}
+          src={`${API_BASE}${image.split('4000')[1]}`}
           alt='productImage'
           className='w-full block object-cover group-hover:scale-110 transition-all duration-1000'
         />

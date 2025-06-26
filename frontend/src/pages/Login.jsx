@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE } from '../helpers/helper';
 
 const FORMDATA_INITIAL_VALUE = {
   name: '',
@@ -23,7 +24,7 @@ function Login() {
 
     setFormData(FORMDATA_INITIAL_VALUE);
 
-    const res = await fetch('http://localhost:4000/login', {
+    const res = await fetch(`${API_BASE}/login`, {
       method: 'POST',
       headers: {
         Accept: 'application/formData',
@@ -57,7 +58,7 @@ function Login() {
 
     setFormData(FORMDATA_INITIAL_VALUE);
 
-    const res = await fetch('http://localhost:4000/signup', {
+    const res = await fetch(`${API_BASE}/signup`, {
       method: 'POST',
       headers: {
         Accept: 'application/formData',

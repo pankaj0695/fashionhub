@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE } from '../helpers/helper';
 
 import Item from './Item';
 
@@ -6,7 +7,7 @@ function Popular() {
   const [popularProducts, setPopularProducts] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:4000/popular')
+    fetch(`${API_BASE}/popular`)
       .then(res => res.json())
       .then(data => {
         setPopularProducts(data);

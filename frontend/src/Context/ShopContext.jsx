@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from 'react';
+import { API_BASE } from '../helpers/helper';
 
 const getDefaultCart = () => {
   let cart = {};
@@ -24,13 +25,13 @@ const ShopContextProvider = props => {
 
   useEffect(() => {
     const fetchData = async () => {
-      let res = await fetch('http://localhost:4000/products');
+      let res = await fetch(`${API_BASE}/products`);
       let resData = await res.json();
       setAll_products(resData);
 
       const token = localStorage.getItem('auth-token');
       if (token) {
-        res = await fetch('http://localhost:4000/cart', {
+        res = await fetch(`${API_BASE}/cart`, {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -49,7 +50,7 @@ const ShopContextProvider = props => {
     setCartItems(prev => ({ ...prev, [itemId]: prev[itemId] + 1 }));
     const token = localStorage.getItem('auth-token');
     if (token) {
-      fetch('http://localhost:4000/addtocart', {
+      fetch(`${API_BASE}/addtocart`, {
         method: 'POST',
         body: JSON.stringify({ itemId: itemId }),
         headers: {
@@ -65,7 +66,7 @@ const ShopContextProvider = props => {
     setCartItems(prev => ({ ...prev, [itemId]: prev[itemId] - 1 }));
     const token = localStorage.getItem('auth-token');
     if (token) {
-      fetch('http://localhost:4000/removefromcart', {
+      fetch(`${API_BASE}/removefromcart`, {
         method: 'POST',
         body: JSON.stringify({ itemId: itemId }),
         headers: {
@@ -100,9 +101,9 @@ const ShopContextProvider = props => {
     setCartItems(getDefaultCart());
     const token = localStorage.getItem('auth-token');
     if (token) {
-      fetch('http://localhost:4000/clearcart', {
+      fetch(`${API_BASE}/clearcart`, {
         method: 'POST',
-        body: JSON.stringify(getDefaultCart()),
+        body: JSON.stringify({ cartData: getDefaultCart() }),
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
